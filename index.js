@@ -6,10 +6,8 @@ import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
-let canvas, camera, scene, bgTexture, logoEnvMap, renderer, stats;
-let glassMaterial, iridescenceMetal, iridescenceGlass, img1, img2, img3;
-let autoRotate = false;
-let width, height;
+let canvas, bgTexture, logoEnvMap, renderer, stats;
+let iridescenceMetal, img1, img2, img3;
 
 const scenes = [];
 
@@ -23,20 +21,9 @@ function init() {
     stats = new Stats();
     statsContainer.appendChild(stats.dom);
 
-    const geometries = [
-        new THREE.BoxGeometry(1, 1, 1),
-        new THREE.SphereGeometry(0.5, 12, 8),
-        new THREE.DodecahedronGeometry(0.5),
-        new THREE.CylinderGeometry(0.5, 0.5, 1, 12)
-    ];
-
     const content = document.getElementById('content');
 
     bgTexture = new EXRLoader().load('examples/textures/cloudy_sky.exr', function (texture) {
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-    });
-
-    logoEnvMap = new EXRLoader().load('examples/textures/cloudy_sky3.exr', function (texture) {
         texture.mapping = THREE.EquirectangularReflectionMapping;
     });
 
@@ -49,46 +36,15 @@ function init() {
 
     const imgs = [img1,img2,img3,img1,img2,img3];
 
-    // Glass Material
-    glassMaterial = new THREE.MeshPhysicalMaterial({
-        envMap: logoEnvMap,
-        transparent: true,
-        color: 0xffffff,
-        transmission: 1,
-        opacity: 1,
-        metalness: 0.2,
-        roughness: 0,
-        thickness: 0.2,
-        iridescence: 0
-    });
-    // Iridescence Metal
+   // Iridescence Metal
     iridescenceMetal = new THREE.MeshPhysicalMaterial({
         envMap: bgTexture,
-        //envMap: logoEnvMap,			
-        //reflectivity: 1.2,
         roughness: 0.1,
         metalness: 0.98,
         emissive: 0,
         iridescence: 1,
         iridescenceIOR: 1.94,
         iridescenceThicknessRange: [100, 400]
-    });
-    // Iridescence Glass
-    iridescenceGlass = new THREE.MeshPhysicalMaterial({
-        envMap: logoEnvMap,
-        reflectivity: 1.2,
-        roughness: 0,
-        metalness: 1,
-        iridescence: 1,
-        transmission: 0.7,
-        thickness: 40,
-        opacity: 1,
-        transparent: true,
-        side: THREE.DoubleSide,
-        emissive: 1,
-        iridescenceIOR: 1.94,
-        iridescenceThicknessRange: [100, 400],
-        //forceSinglePass: true
     });
 
     for (let i = 1; i < 7; i++) {
@@ -123,7 +79,6 @@ function init() {
 
                 displayCase = gltf.scene;
                 displayCase.getObjectByName('DisplayCase_1').material = iridescenceMetal;
-                //displayCase.getObjectByName('DisplayCase_3').material = glassMaterial;
 
                 card = displayCase.getObjectByName('DisplayCase_2');
                 card.material.emissiveMap = imgs[i-1];
